@@ -84,21 +84,17 @@ struct Lidar {
   // in front of the sensor
   Lidar(std::vector<Car> setCars, double setGroundSlope)
       : cloud(new pcl::PointCloud<pcl::PointXYZ>()), position(0, 0, 2.6) {
-    // TODO:: set minDistance to 5 to remove points from roof of ego car
     minDistance = 5;
     maxDistance = 50;
     resoultion = 0.2;
     sderr = 0.2;
     cars = setCars;
     groundSlope = setGroundSlope;
-
     int numLayers = 8;
     // the steepest vertical angle
     double steepestAngle = 30.0 * (-pi / 180);
     double angleRange = 26.0 * (pi / 180);
-    // TODO:: set to pi/64 to get higher resoultion pcd
-    double horizontalAngleInc = pi / 6;
-
+    double horizontalAngleInc = pi / 64;
     double angleIncrement = angleRange / numLayers;
 
     for (double angleVertical = steepestAngle;
