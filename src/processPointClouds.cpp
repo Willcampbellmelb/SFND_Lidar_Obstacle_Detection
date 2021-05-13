@@ -33,29 +33,41 @@ typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::FilterCloud(
 
   return cloud;
 }
-
+/**
+ *
+ *
+ *@return Point cloud ptr pair to obstacles and plane point cloud(road)
+ **/
 template <typename PointT>
-std::pair<typename pcl::PointCloud<PointT>::Ptr,
-          typename pcl::PointCloud<PointT>::Ptr>
-ProcessPointClouds<PointT>::SeparateClouds(
-    pcl::PointIndices::Ptr inliers,
-    typename pcl::PointCloud<PointT>::Ptr cloud) {
-  // TODO: Create two new point clouds, one cloud with obstacles and other with
-  // segmented plane
+std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::SeparateClouds(pcl::PointIndices::Ptr inliers,typename pcl::PointCloud<PointT>::Ptr cloud) {
 
-  std::pair<typename pcl::PointCloud<PointT>::Ptr,
-            typename pcl::PointCloud<PointT>::Ptr>
-      segResult(cloud, cloud);
+  // Create Point cloud ptr objects for extracting to
+  typename pcl::PointCloud<PointT>::Ptr obstCloud(new pcl::PointCloud<PointT>), planeCloud(new pcl::PointCloud<PointT>);
+
+  // the segmented plane road points ARE INLIERS
+  for(auto index:inliers->indices){
+    planeCloud->points.push_back(cloud->points[index]);
+
+  }
+  // Use PCL extract to create obstacles from the inliers
+  pcl::ExtractIndices<PointT>extract;
+  // Extract the inliers
+  extract.setInputCloud(cloud);
+  extract.setIndices(inliers);
+  extract.setNegative(false);
+  extract.filter(*obstCloud);
+
+  std::pair<typename pcl::PointCloud<PointT>::Ptr,typename pcl::PointCloud<PointT>::Ptr> segResult(obstCloud, planeCloud);
   return segResult;
 }
 
-// pair holds the obstacle point cloud and road point cloud
+/**
+ *
+ *
+ *@return Point cloud ptr pair to obstacles and plane point cloud
+ **/
 template <typename PointT>
-std::pair<typename pcl::PointCloud<PointT>::Ptr,
-          typename pcl::PointCloud<PointT>::Ptr>
-ProcessPointClouds<PointT>::SegmentPlane(
-    typename pcl::PointCloud<PointT>::Ptr cloud, int maxIterations,
-    float distanceThreshold) {
+std::pair<typename pcl::PointCloud<PointT>::Ptr,typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::SegmentPlane(typename pcl::PointCloud<PointT>::Ptr cloud, int maxIterations,float distanceThreshold) {
   // Time segmentation process
   auto startTime = std::chrono::steady_clock::now();
   // Create the segmentation object
@@ -79,23 +91,16 @@ ProcessPointClouds<PointT>::SegmentPlane(
     std::cerr << "Could not estimate a planar model for the given dataset."
               << std::endl;
   }
-  std::pair<typename pcl::PointCloud<PointT>::Ptr,
-            typename pcl::PointCloud<PointT>::Ptr>
-      segResult = SeparateClouds(inliers, cloud);
+  auto segResult = SeparateClouds(inliers, cloud);
   auto endTime = std::chrono::steady_clock::now();
-  auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(
-      endTime - startTime);
-  std::cout << "plane segmentation took " << elapsedTime.count()
-            << " milliseconds" << std::endl;
+  auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+  std::cout << "plane segmentation took " << elapsedTime.count() << " milliseconds" << std::endl;
 
   return segResult;
 }
 
 template <typename PointT>
-std::vector<typename pcl::PointCloud<PointT>::Ptr>
-ProcessPointClouds<PointT>::Clustering(
-    typename pcl::PointCloud<PointT>::Ptr cloud, float clusterTolerance,
-    int minSize, int maxSize) {
+std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::Clustering(typename pcl::PointCloud<PointT>::Ptr cloud, float clusterTolerance,int minSize, int maxSize) {
 
   // Time clustering process
   auto startTime = std::chrono::steady_clock::now();
@@ -108,9 +113,7 @@ ProcessPointClouds<PointT>::Clustering(
   auto endTime = std::chrono::steady_clock::now();
   auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(
       endTime - startTime);
-  std::cout << "clustering took " << elapsedTime.count()
-            << " milliseconds and found " << clusters.size() << " clusters"
-            << std::endl;
+  std::cout << "clustering took " << elapsedTime.count() << " milliseconds and found " << clusters.size() << " clusters" << std::endl;
 
   return clusters;
 }

@@ -14,7 +14,7 @@ std::vector<Car> initHighway(bool renderScene,
   Car egoCar(Vect3(0, 0, 0), Vect3(4, 2, 2), Color(0, 1, 0), "egoCar");
   Car car1(Vect3(15, 0, 0), Vect3(4, 2, 2), Color(0, 0, 1), "car1");
   Car car2(Vect3(8, -4, 0), Vect3(4, 2, 2), Color(0, 0, 1), "car2");
-  Car car3(Vect3(-12, 4, 0), Vect3(4, 2, 2), Color(0, 0, 1), "car3");
+  Car car3(Vect3(-5, 2, 0), Vect3(4, 2, 2), Color(0, 0, 1), "car3");
 
   std::vector<Car> cars;
   cars.push_back(egoCar);
@@ -39,7 +39,7 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr &viewer) {
   // ----------------------------------------------------
 
   // RENDER OPTIONS
-  bool renderScene = true;
+  bool renderScene = false;
   std::vector<Car> cars = initHighway(renderScene, viewer);
   Lidar *myLidar = new Lidar(cars, 0);
   auto rayCloud = myLidar->scan();
@@ -47,7 +47,10 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr &viewer) {
   renderPointCloud(viewer, rayCloud, "rayCloud", Color(10, 0, 0));
 
   // create point processor
-  auto Processor = ProcessPointClouds<pcl::PointXYZ>();
+  auto pointProcessor = ProcessPointClouds<pcl::PointXYZ>();
+  auto segmentCloud = pointProcessor.SegmentPlane(rayCloud, 10000, 0.2);
+  renderPointCloud(viewer, segmentCloud.first, "obstCloud", Color(1, 0, 0));
+  renderPointCloud(viewer, segmentCloud.second, "planeCloud", Color(0, 1, 0));
 }
 
 // setAngle: SWITCH CAMERA ANGLE {XY, TopDown, Side, FPS}

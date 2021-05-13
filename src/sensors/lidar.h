@@ -94,7 +94,7 @@ struct Lidar {
     // the steepest vertical angle
     double steepestAngle = 30.0 * (-pi / 180);
     double angleRange = 26.0 * (pi / 180);
-    double horizontalAngleInc = pi / 64;
+    double horizontalAngleInc = pi / 120;
     double angleIncrement = angleRange / numLayers;
 
     for (double angleVertical = steepestAngle;
