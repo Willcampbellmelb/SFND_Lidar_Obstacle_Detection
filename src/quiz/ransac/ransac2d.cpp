@@ -125,7 +125,7 @@ double distanceToEOP(double x0, double y0,double z0, std::tuple<double,double,do
       abs(std::get<0>(EOP) * x0 + std::get<1>(EOP) * y0 + std::get<2>(EOP)* z0 + std::get<3>(EOP)) / denom;
   return distance;
 }
-std::unordered_set<int> WillRansac(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, int maxIterations, float distanceTol)
+std::unordered_set<int> CustomRansac(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, int maxIterations, float distanceTol)
 {
   std::unordered_set<int> inliersResult;
 
@@ -177,7 +177,7 @@ int main ()
 	
 
 	// TODO: Change the max iteration and distance tolerance arguments for Ransac function
-	std::unordered_set<int> inliers = Ransac(cloud, 500, 0.5);
+	std::unordered_set<int> inliers = CustomRansac(cloud, 500, 0.5);
 
 	pcl::PointCloud<pcl::PointXYZ>::Ptr  cloudInliers(new pcl::PointCloud<pcl::PointXYZ>());
 	pcl::PointCloud<pcl::PointXYZ>::Ptr cloudOutliers(new pcl::PointCloud<pcl::PointXYZ>());
