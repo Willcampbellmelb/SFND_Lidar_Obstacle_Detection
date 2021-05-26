@@ -11,15 +11,12 @@ template <typename PointT> ProcessPointClouds<PointT>::ProcessPointClouds() {}
 template <typename PointT> ProcessPointClouds<PointT>::~ProcessPointClouds() {}
 
 template <typename PointT>
-void ProcessPointClouds<PointT>::numPoints(
-    typename pcl::PointCloud<PointT>::Ptr cloud) {
+void ProcessPointClouds<PointT>::numPoints(typename pcl::PointCloud<PointT>::Ptr cloud) {
   std::cout << cloud->points.size() << std::endl;
 }
 
 template <typename PointT>
-typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::FilterCloud(
-    typename pcl::PointCloud<PointT>::Ptr cloud, float filterRes,
-    Eigen::Vector4f minPoint, Eigen::Vector4f maxPoint) {
+typename pcl::PointCloud<PointT>::Ptr ProcessPointClouds<PointT>::FilterCloud(typename pcl::PointCloud<PointT>::Ptr cloud, float filterRes, Eigen::Vector4f minPoint, Eigen::Vector4f maxPoint) {
 
   // Time segmentation process
   auto startTime = std::chrono::steady_clock::now();
@@ -57,6 +54,10 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
   extract.setInputCloud(cloud);
   extract.setIndices(inliers);
   extract.setNegative(false);
+  extract.filter(*planeCloud);
+   // Extract the outliers
+  extract.setNegative(true);  // True means points belonging to outliers remain
+      // outliers are the points not belonging to the road
   extract.filter(*obstCloud);
 
   std::pair<typename pcl::PointCloud<PointT>::Ptr,typename pcl::PointCloud<PointT>::Ptr> segResult(obstCloud, planeCloud);
@@ -111,9 +112,6 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::C
 
   std::vector<typename pcl::PointCloud<PointT>::Ptr> clusters;
 
-  // TODO:: Fill in the function to perform euclidean clustering to group
-  // detected obstacles
-  // Creating the KdTree object for the search method of the extraction
   typename pcl::search::KdTree<PointT>::Ptr tree (new pcl::search::KdTree<PointT>);
   tree->setInputCloud (cloud);
 

@@ -82,10 +82,9 @@ struct Lidar {
   double sderr;
   // groundSlop is used for ray casting -> meaning what is slope of the ground
   // in front of the sensor
-  Lidar(std::vector<Car> setCars, double setGroundSlope)
-      : cloud(new pcl::PointCloud<pcl::PointXYZ>()), position(0, 0, 2.6) {
+  Lidar(std::vector<Car> setCars, double setGroundSlope) : cloud(new pcl::PointCloud<pcl::PointXYZ>()), position(0, 0, 2.6) {
     minDistance = 5;
-    maxDistance = 50;
+    maxDistance = 70;
     resoultion = 0.2;
     sderr = 0.2;
     cars = setCars;
@@ -94,7 +93,7 @@ struct Lidar {
     // the steepest vertical angle
     double steepestAngle = 30.0 * (-pi / 180);
     double angleRange = 26.0 * (pi / 180);
-    double horizontalAngleInc = pi / 120;
+    double horizontalAngleInc = pi / 64;
     double angleIncrement = angleRange / numLayers;
 
     for (double angleVertical = steepestAngle;
